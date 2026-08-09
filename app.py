@@ -1,12 +1,19 @@
-import gdown
+import requests
+import tensorflow as tf
 
-file_id = "TU_ID_DE_DRIVE"
-url = f"https://drive.google.com/file/d/1S_l7IrR3zy0FrqH9nb13xsvoXsOTyr9b/view?usp=drive_link"
-output = "coffee_leaf_model.h5"
+def download_model_from_drive():
+    file_id = "1S_l7IrR3zy0FrqH9nb13xsvoXsOTyr9b"
+    url = f"https://drive.google.com/uc?export=download&id={file_id}"
+    output = "coffee_leaf_model.h5"
 
-gdown.download(url, output, quiet=False)
+    response = requests.get(url)
+    with open(output, "wb") as f:
+        f.write(response.content)
 
-model = tf.keras.models.load_model(output)
+    return output
+
+model_path = download_model_from_drive()
+model = tf.keras.models.load_model(model_path)
 
 import groq
 
