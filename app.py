@@ -1,6 +1,4 @@
 import requests
-import tensorflow as tf
-
 def download_model_from_drive():
     file_id = "1S_l7IrR3zy0FrqH9nb13xsvoXsOTyr9b"
     url = f"https://drive.google.com/uc?export=download&id={file_id}"
