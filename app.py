@@ -5,7 +5,7 @@ model_path = hf_hub_download(
     repo_id="Angel1234567890/coffee-leaf-model", 
     filename="coffee_leaf_model.h5"
 )
-
+print("Tamaño del archivo:", os.path.getsize(model_path))  # verificación
 model = tf.keras.models.load_model(model_path)
 
 import groq
