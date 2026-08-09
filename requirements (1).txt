@@ -1,7 +1,8 @@
 streamlit
-tensorflow
+tensorflow==2.12.0
 numpy
 pillow
 groq
 reportlab
 requests
+huggingface_hub
