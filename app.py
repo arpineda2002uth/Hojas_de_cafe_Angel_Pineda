@@ -1,15 +1,25 @@
 import gdown
 
-# ID del archivo en Google Drive
 file_id = "TU_ID_DE_DRIVE"
 url = f"https://drive.google.com/file/d/1S_l7IrR3zy0FrqH9nb13xsvoXsOTyr9b/view?usp=drive_link"
 output = "coffee_leaf_model.h5"
 
-# Descargar modelo desde Drive
 gdown.download(url, output, quiet=False)
 
-# Cargar modelo
 model = tf.keras.models.load_model(output)
+
+import groq
+
+client = groq.Client(api_key="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")
+
+def groq_api_call(disease):
+    prompt = f"Genera descripción, recomendaciones técnicas, buenas prácticas y acciones de seguimiento para la enfermedad {disease} en hojas de café."
+    response = client.chat.completions.create(
+        model="llama3-8b-8192",   # Modelo de Groq
+        messages=[{"role":"user","content":prompt}]
+    )
+    return response.choices[0].message.content
+
 
 import streamlit as st
 import tensorflow as tf
