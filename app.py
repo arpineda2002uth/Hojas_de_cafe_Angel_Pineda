@@ -1,3 +1,16 @@
+import gdown
+
+# ID del archivo en Google Drive
+file_id = "TU_ID_DE_DRIVE"
+url = f"https://drive.google.com/file/d/1S_l7IrR3zy0FrqH9nb13xsvoXsOTyr9b/view?usp=drive_link"
+output = "coffee_leaf_model.h5"
+
+# Descargar modelo desde Drive
+gdown.download(url, output, quiet=False)
+
+# Cargar modelo
+model = tf.keras.models.load_model(output)
+
 import streamlit as st
 import tensorflow as tf
 from tensorflow.keras.preprocessing import image
