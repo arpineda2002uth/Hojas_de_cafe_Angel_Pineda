@@ -1,6 +1,7 @@
 streamlit
 tensorflow
-keras
+numpy
 pillow
-requests
+groq
+reportlab
 gdown
