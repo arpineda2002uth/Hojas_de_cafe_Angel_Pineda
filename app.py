@@ -1,21 +1,11 @@
-import requests
+from huggingface_hub import hf_hub_download
+import tensorflow as tf
 
-def download_model_from_drive():
-    file_id = "1S_l7IrR3zy0FrqH9nb13xsvoXsOTyr9b"
-    url = f"https://drive.google.com/uc?export=download&id={file_id}"
-    output = "coffee_leaf_model.h5"
+model_path = hf_hub_download(
+    repo_id="Angel1234567890/coffee-leaf-model", 
+    filename="coffee_leaf_model.h5"
+)
 
-    response = requests.get(url, allow_redirects=True)
-    if response.status_code == 200:
-        with open(output, "wb") as f:
-            f.write(response.content)
-    else:
-        raise Exception("Error al descargar el modelo desde Google Drive")
-
-    return output
-
-# Descargar y cargar modelo
-model_path = download_model_from_drive()
 model = tf.keras.models.load_model(model_path)
 
 import groq
