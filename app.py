@@ -7,11 +7,8 @@ import groq
 from reportlab.pdfgen import canvas
 import os
 
-# -------------------------------
-# Descargar modelo desde HuggingFace Hub
-# -------------------------------
 model_path = hf_hub_download(
-    repo_id="TU_USUARIO/coffee-leaf-model",   # Reemplaza con tu usuario
+    repo_id="Angel1234567890/coffee-leaf-model", 
     filename="coffee_leaf_model.h5"
 )
 
@@ -20,7 +17,7 @@ model = tf.keras.models.load_model(model_path)
 # -------------------------------
 # Configuración de Groq API
 # -------------------------------
-client = groq.Client(api_key="TU_API_KEY")  # Reemplaza con tu API Key
+client = groq.Client(api_key="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")
 
 def groq_api_call(disease):
     prompt = f"Genera descripción, recomendaciones técnicas, buenas prácticas y acciones de seguimiento para la enfermedad {disease} en hojas de café."
@@ -30,9 +27,6 @@ def groq_api_call(disease):
     )
     return response.choices[0].message.content
 
-# -------------------------------
-# Función de predicción
-# -------------------------------
 def predict_leaf(image_path):
     img = Image.open(image_path).resize((224,224))
     img_array = np.array(img)/255.0
@@ -42,9 +36,6 @@ def predict_leaf(image_path):
     confidence = np.max(prediction) * 100
     return label, confidence
 
-# -------------------------------
-# Generar PDF con ReportLab
-# -------------------------------
 def generar_pdf(disease, confidence, recomendaciones):
     filename = "diagnostico.pdf"
     c = canvas.Canvas(filename)
@@ -56,9 +47,6 @@ def generar_pdf(disease, confidence, recomendaciones):
     c.save()
     return filename
 
-# -------------------------------
-# Interfaz Streamlit
-# -------------------------------
 st.title("🌱 Coffee Leaf Disease Detection App")
 
 uploaded_file = st.file_uploader("Sube una imagen de la hoja de café", type=["jpg","png"])
