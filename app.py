@@ -12,7 +12,8 @@ model_path = hf_hub_download(
     filename="coffee_leaf_model.h5"
 )
 
-model = tf.keras.models.load_model(model_path)
+import keras
+model = keras.models.load_model(model_path)
 
 # -------------------------------
 # Configuración de Groq API
