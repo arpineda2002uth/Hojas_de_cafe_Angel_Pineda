@@ -1,53 +1,26 @@
-from huggingface_hub import hf_hub_download
-import tensorflow as tf
-
-model_path = hf_hub_download(
-    repo_id="Angel1234567890/coffee-leaf-model", 
-    filename="coffee_leaf_model.h5"
-)
-print("Tamaño del archivo:", os.path.getsize(model_path))  # verificación
-model = tf.keras.models.load_model(model_path)
-
-import groq
-
-client = groq.Client(api_key="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")
-
-def groq_api_call(disease):
-    prompt = f"Genera descripción, recomendaciones técnicas, buenas prácticas y acciones de seguimiento para la enfermedad {disease} en hojas de café."
-    response = client.chat.completions.create(
-        model="llama3-8b-8192",   # Modelo de Groq
-        messages=[{"role":"user","content":prompt}]
-    )
-    return response.choices[0].message.content
-
-
 import streamlit as st
-import tensorflow as tf
-from tensorflow.keras.preprocessing import image
 import numpy as np
+import tensorflow as tf
 from PIL import Image
+from huggingface_hub import hf_hub_download
 import groq
 from reportlab.pdfgen import canvas
+import os
 
-# Cargar modelo entrenado
-model = tf.keras.models.load_model("coffee_leaf_model.h5")
+# -------------------------------
+# Descargar modelo desde HuggingFace Hub
+# -------------------------------
+model_path = hf_hub_download(
+    repo_id="TU_USUARIO/coffee-leaf-model",   # Reemplaza con tu usuario
+    filename="coffee_leaf_model.h5"
+)
 
-# Definir clases (ajusta según tu dataset)
-classes = ["Healthy", "Rust", "Mineral Deficiency"]
+model = tf.keras.models.load_model(model_path)
 
-# Función de predicción
-def predict_leaf(img_path):
-    img = image.load_img(img_path, target_size=(224,224))
-    img_array = image.img_to_array(img)/255.0
-    img_array = np.expand_dims(img_array, axis=0)
-
-    prediction = model.predict(img_array)
-    confidence = np.max(prediction) * 100
-    label = classes[np.argmax(prediction)]
-    return label, confidence
-
-# Conexión con Groq API
-client = groq.Client(api_key="TU_API_KEY")  # Reemplaza con tu API Key real
+# -------------------------------
+# Configuración de Groq API
+# -------------------------------
+client = groq.Client(api_key="TU_API_KEY")  # Reemplaza con tu API Key
 
 def groq_api_call(disease):
     prompt = f"Genera descripción, recomendaciones técnicas, buenas prácticas y acciones de seguimiento para la enfermedad {disease} en hojas de café."
@@ -57,38 +30,53 @@ def groq_api_call(disease):
     )
     return response.choices[0].message.content
 
+# -------------------------------
+# Función de predicción
+# -------------------------------
+def predict_leaf(image_path):
+    img = Image.open(image_path).resize((224,224))
+    img_array = np.array(img)/255.0
+    img_array = np.expand_dims(img_array, axis=0)
+    prediction = model.predict(img_array)
+    label = np.argmax(prediction)
+    confidence = np.max(prediction) * 100
+    return label, confidence
+
+# -------------------------------
 # Generar PDF con ReportLab
+# -------------------------------
 def generar_pdf(disease, confidence, recomendaciones):
-    c = canvas.Canvas("diagnostico.pdf")
-    c.drawString(100, 750, f"Diagnóstico: {disease}")
-    c.drawString(100, 730, f"Confianza: {confidence:.2f}%")
-    c.drawString(100, 710, "Recomendaciones:")
-    c.drawString(120, 690, recomendaciones)
+    filename = "diagnostico.pdf"
+    c = canvas.Canvas(filename)
+    c.drawString(100, 750, "Diagnóstico de Hoja de Café")
+    c.drawString(100, 700, f"Enfermedad detectada: {disease}")
+    c.drawString(100, 680, f"Confianza: {confidence:.2f}%")
+    c.drawString(100, 640, "Recomendaciones:")
+    c.drawString(120, 620, recomendaciones[:200])  # corta texto largo
     c.save()
-    return "diagnostico.pdf"
+    return filename
 
+# -------------------------------
 # Interfaz Streamlit
-def main():
-    st.title("🌱 Detección de Enfermedades en Hojas de Café")
+# -------------------------------
+st.title("🌱 Coffee Leaf Disease Detection App")
 
-    uploaded_file = st.file_uploader("Sube una imagen de la hoja", type=["jpg","png","jpeg"])
-    if uploaded_file is not None:
-        img = Image.open(uploaded_file)
-        st.image(img, caption="Imagen cargada", use_column_width=True)
+uploaded_file = st.file_uploader("Sube una imagen de la hoja de café", type=["jpg","png"])
 
-        img.save("temp.jpg")
-        label, confidence = predict_leaf("temp.jpg")
+if uploaded_file is not None:
+    with open("temp.jpg", "wb") as f:
+        f.write(uploaded_file.getbuffer())
 
-        st.write(f"✅ Enfermedad detectada: {label}")
-        st.write(f"📊 Confianza: {confidence:.2f}%")
+    label, confidence = predict_leaf("temp.jpg")
 
-        recomendaciones = groq_api_call(label)
-        st.subheader("📖 Recomendaciones generadas por IA")
-        st.write(recomendaciones)
+    st.write(f"✅ Enfermedad detectada: {label}")
+    st.write(f"📊 Confianza: {confidence:.2f}%")
 
-        if st.button("Generar PDF"):
-            pdf_path = generar_pdf(label, confidence, recomendaciones)
-            st.success(f"PDF generado: {pdf_path}")
+    recomendaciones = groq_api_call(label)
+    st.subheader("📖 Recomendaciones generadas por IA")
+    st.write(recomendaciones)
 
-if __name__ == "__main__":
-    main()
+    if st.button("Generar PDF"):
+        pdf_file = generar_pdf(label, confidence, recomendaciones)
+        with open(pdf_file, "rb") as f:
+            st.download_button("Descargar PDF", f, file_name="diagnostico.pdf")
