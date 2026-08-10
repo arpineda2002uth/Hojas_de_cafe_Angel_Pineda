@@ -1,5 +1,7 @@
 # Hojas_de_cafe_Angel_Pineda
 
+Hola ingeniera, lamentablemente no pude terminar la tarea, al momento de subirlo al repositorio de github y montarlo en streamlit me seguía tirando siempre el mismo error, estuve desde ayer en la noche y parte del día del hoy intentando solucionar cada error, espero poder ser evaluado con el código, una disculpa y buenas noches
+
 ## 📖 Descripción
 Este proyecto es una aplicación web desarrollada con Streamlit que permite detectar enfermedades en hojas de café usando un modelo de entrenado con TensorFlow.  
 El sistema analiza una imagen de la hoja, predice la enfermedad, muestra el nivel de confianza y genera recomendaciones técnicas con ayuda de Groq API. Además, permite exportar un informe en PDF con ReportLab.
